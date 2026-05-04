@@ -122,3 +122,43 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: cat "${{ github.workspace }}/vcpkg/vcpkg_dry_run.txt"
+
+  test-absdir:
+    runs-on: ${{ matrix.config.os }}
+    name: test-vcpkg-action
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - os: ubuntu-22.04
+          vcpkg_triplet: x64-linux-release
+          absdir: /tmp/vcpkg-action-work
+        - os: macos-15-intel
+          vcpkg_triplet: x64-osx-release
+          absdir: /tmp/vcpkg-action-work
+        - os: windows-2022
+          vcpkg_triplet: x64-windows-release
+          absdir: D:/tmp/vcpkg-action-work
+    steps:
+      - uses: actions/checkout@v6
+      - name: vcpkg build
+        id: vcpkg
+        uses: ./
+        with:
+          pkgs: boost-date-time
+          triplet: ${{ matrix.config.vcpkg_triplet }}
+          cache-key: ${{ matrix.config.os }}-test-absdir
+          revision: master
+          token: ${{ github.token }}
+          collect-logs: 'on-failure'
+          vcpkg-absdir: ${{ matrix.config.absdir }}
+      - name: cmake configure
+        run: >
+          cmake ${{ steps.vcpkg.outputs.vcpkg-cmake-config }} -S ${{ github.workspace }}/.github/cmake_test -B cmake_build 
+      - name: Verify vcpkg location
+        shell: bash
+        run: |
+          if [ ! -f "${{ matrix.config.absdir }}/vcpkg" ] && [ ! -f "${{ matrix.config.absdir }}/vcpkg.exe" ]; then
+            echo "FAILED: vcpkg not found in absolute directory ${{ matrix.config.absdir }}"
+            exit 1
+          fi
