@@ -80,6 +80,8 @@ Simple manifest example:
     collect-logs: ''
     # a subdirectory of the action base folder into which the VCPKG will be installed. Default is 'vcpkg'.
     vcpkg-subdir: 'vcpkg'
+    # provide an absolute directory to install vcpkg. Overrides vcpkg-subdir option.
+    vcpkg-absdir: ''
 ```
 
 ## Advanced Example
