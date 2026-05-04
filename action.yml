@@ -64,6 +64,7 @@ runs:
       INPUTS_VCPKG_SUBDIR: ${{ inputs.vcpkg-subdir }}
       INPUTS_VCPKG_ABSDIR: ${{ inputs.vcpkg-absdir }}
     with:
+      result-encoding: string
       script: |
         if (process.env.INPUTS_VCPKG_ABSDIR === "")
         {
